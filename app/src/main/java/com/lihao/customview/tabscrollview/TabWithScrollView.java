@@ -22,7 +22,7 @@ public class TabWithScrollView extends ScrollView {
     /**
      * 模块View的集合
      */
-    private List<View> mAnchorList;
+    private List<View> mViewList;
 
     /**
      * 是否是ScrollView引起的滑动，true-是，false-TabLayout引起的滑动
@@ -85,16 +85,29 @@ public class TabWithScrollView extends ScrollView {
             onScrollCallback.onScrollCallback(l, t, oldl, oldt);
         }
         if (isManualScroll) {
-            if (mAnchorList == null) {
+            if (mViewList == null) {
                 return;
             }
-            for (int i = mAnchorList.size() - 1; i >= 0; i--) {
-                if (t > getScrollDistance(i)) {
+            for (int i = mViewList.size() - 1; i >= 0; i--) {
+                if (t > getViewTop(i)) {
                     setSelectedTab(i);
                     break;
                 }
             }
         }
+    }
+
+    /**
+     * 获取View距离顶部的高度(mTranslationY是距离顶部的偏移量)
+     *
+     * @param position
+     * @return
+     */
+    private int getViewTop(int position) {
+        if (position >= mViewList.size() + 1) {
+            throw new IndexOutOfBoundsException("TabLayout的tab数量和视图View的数量不一致");
+        }
+        return mViewList.get(position).getTop() - mTranslationY;
     }
 
     /**
@@ -126,7 +139,7 @@ public class TabWithScrollView extends ScrollView {
     }
 
     public void setAnchorList(List<View> anchorList) {
-        this.mAnchorList = anchorList;
+        this.mViewList = anchorList;
     }
 
     public void setOnScrollCallback(OnScrollCallback onScrollCallback) {
@@ -137,29 +150,16 @@ public class TabWithScrollView extends ScrollView {
         this.mTranslationY = translationY;
     }
 
-    /**
-     * 获取模块的锚点
-     *
-     * @param position
-     * @return
-     */
-    private int getScrollDistance(int position) {
-        if (position >= mAnchorList.size() + 1) {
-            throw new IndexOutOfBoundsException("TabLayout的tab数量和视图View的数量不一致");
-        }
-        return mAnchorList.get(position).getTop() - mTranslationY;
-    }
-
     TabLayout.OnTabSelectedListener mTabSelectedListener = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
             isManualScroll = false;
-            if (mAnchorList == null) {
+            if (mViewList == null) {
                 Log.i(TAG, "onTabSelected: 未设置View集合");
                 return;
             }
             // smoothScrollTo可以平滑的滑动到指定位置，并打断惯性滑动
-            smoothScrollTo(0, getScrollDistance(tab.getPosition()));
+            smoothScrollTo(0, getViewTop(tab.getPosition()));
         }
 
         @Override

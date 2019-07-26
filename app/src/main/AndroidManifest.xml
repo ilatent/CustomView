@@ -18,6 +18,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".tabscrollview.DetailActivity" />
+        <activity android:name=".transitionanim.ATransitionAnimActivity"/>
+        <activity android:name=".transitionanim.BTransitionAnimActivity"
+            android:theme="@style/BaseAppTheme"/>
     </application>
 
 </manifest>
