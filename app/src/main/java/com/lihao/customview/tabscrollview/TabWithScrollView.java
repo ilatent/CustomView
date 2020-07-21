@@ -3,6 +3,7 @@ package com.lihao.customview.tabscrollview;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -49,33 +50,28 @@ public class TabWithScrollView extends ScrollView {
      */
     private int mTranslationY = 10;
 
+    private boolean mSelectTabFlag = false;
+
 
     public TabWithScrollView(Context context) {
         super(context);
-        setOnTouchListener();
     }
 
     public TabWithScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOnTouchListener();
     }
 
     public TabWithScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOnTouchListener();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    public void setOnTouchListener() {
-        super.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    isManualScroll = true;
-                }
-                return false;
-            }
-        });
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            Log.i(TAG, "onTouch: ACTION_DOWN");
+            isManualScroll = true;
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -117,10 +113,14 @@ public class TabWithScrollView extends ScrollView {
      */
     private void setSelectedTab(int position) {
         if (mTabLayout != null && position != oldPosition) {
-            // 该方法不会走tabLayout的onTabSelected监听
-            mTabLayout.setScrollPosition(position, 0, true);
+            Log.i(TAG, "setSelectedTab: " + position);
+            oldPosition = position;
+            TabLayout.Tab newTab = mTabLayout.getTabAt(position);
+            if (newTab != null) {
+                mSelectTabFlag = true;
+                newTab.select();
+            }
         }
-        oldPosition = position;
     }
 
     /**
@@ -129,9 +129,6 @@ public class TabWithScrollView extends ScrollView {
      * @param tabLayout
      */
     public void setupWithTabLayout(TabLayout tabLayout) {
-        if (mTabLayout != null) {
-            mTabLayout.removeOnTabSelectedListener(mTabSelectedListener);
-        }
         if (tabLayout != null) {
             mTabLayout = tabLayout;
             mTabLayout.addOnTabSelectedListener(mTabSelectedListener);
@@ -153,23 +150,29 @@ public class TabWithScrollView extends ScrollView {
     TabLayout.OnTabSelectedListener mTabSelectedListener = new TabLayout.OnTabSelectedListener() {
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
+            oldPosition = tab.getPosition();
             isManualScroll = false;
+            mSelectTabFlag = !mSelectTabFlag;
             if (mViewList == null) {
-                Log.i(TAG, "onTabSelected: 未设置View集合");
                 return;
             }
-            // smoothScrollTo可以平滑的滑动到指定位置，并打断惯性滑动
-            smoothScrollTo(0, getViewTop(tab.getPosition()));
+            if (mSelectTabFlag) { // 通过点击Tab触发
+                // smoothScrollTo可以平滑的滑动到指定位置，并打断惯性滑动
+                smoothScrollTo(0, getViewTop(oldPosition));
+            } else { //通过滑动时切换Tab触发
+                isManualScroll = true;
+            }
+            mSelectTabFlag = false;
         }
 
         @Override
         public void onTabUnselected(TabLayout.Tab tab) {
-
+            Log.i(TAG, "onTabUnselected: " + tab.getPosition());
         }
 
         @Override
         public void onTabReselected(TabLayout.Tab tab) {
-
+            Log.i(TAG, "onTabReselected: " + tab.getPosition());
         }
     };
 

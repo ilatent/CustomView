@@ -10,6 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".hencoder.CustomViewActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,9 +19,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".tabscrollview.DetailActivity" />
-        <activity android:name=".transitionanim.ATransitionAnimActivity"/>
-        <activity android:name=".transitionanim.BTransitionAnimActivity"
-            android:theme="@style/BaseAppTheme"/>
+        <activity android:name=".transitionanim.ATransitionAnimActivity" />
+        <activity
+            android:name=".transitionanim.BTransitionAnimActivity"
+            android:theme="@style/BaseAppTheme" />
     </application>
 
 </manifest>

@@ -24,5 +24,14 @@
         android:layout_marginEnd="60dp"
         android:text="Activity的转场动画" />
 
+    <Button
+        android:id="@+id/custom1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginEnd="60dp"
+        android:text="自定义View1" />
+
+
 
 </LinearLayout>
